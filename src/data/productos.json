@@ -187,5 +187,23 @@
           "thumbnail": "../img/cerezas.jpeg",
           "code": "Cherry263",
           "stock": "60"
+     },
+     {
+          "id": 22,
+          "title": "Local en arriendo Vitacura",
+          "description": "Excelente local en arriendo Av. Vitacura",
+          "price": "2490000",
+          "thumbnail": "../img/IMG_4639.jpg",
+          "code": "VitaStore",
+          "stock": "1"
+     },
+     {
+          "id": 23,
+          "title": "Departamento Amoblado Av Noruega Elegante 3 dormitorios",
+          "description": "Elegante departamento en Las Condes",
+          "price": "2000000",
+          "thumbnail": "../img/IMG_4113.jpg",
+          "code": "condesStore",
+          "stock": "1"
      }
 ]

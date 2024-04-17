@@ -23,7 +23,7 @@ const entorno = async () => {
         try { 
             productos = producto.getProducts();
         } catch(error){ 
-            console.lot(error);
+            console.log(error);
             return
         }
         
@@ -82,8 +82,25 @@ const entorno = async () => {
         } else {
                 let agregado = await producto.addProduct(title,description,price,thumbnail,code,stock);
                 if(agregado){
+
+                    let productos;
+                    try { 
+                            productos = producto.getProducts();
+                        } catch(error){ 
+                            console.log(error);
+                            return
+                        }
+                        const MaxIdFunc = (array) => {
+                            return array.reduce((maxId, objeto) => { // Utilizar el método reduce para encontrar el último id
+                                return objeto.id > maxId ? objeto.id : maxId;
+                            }, 0); // Iniciar con un valor muy bajo para asegurar que cualquier id sea mayor
+                        }
+                        const MaxId = MaxIdFunc(productos);
+                        let NewProduct = producto.getProductById(MaxId);
+                    request.io.emit("NuevoProducto", NewProduct);
+                    
                     response.setHeader('Content-Type','application/json');
-                    response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"})
+                    response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"});
                 } else {
                     response.setHeader('Content-Type','application/json');
                     response.status(400).json({status:"error", message:"El producto no se pudo agregar"})

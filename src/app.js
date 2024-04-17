@@ -19,7 +19,10 @@ app.set('views', path.join(__dirname,'/views'));
 
 app.use(express.static(__dirname+'/public'));
 
-app.use("/api/products/", (req, res, next) => { req.io = io; next();} ,productsRouter); //Estoy agregando un middleware literal en flecha
+//Estoy agregando un middleware literal en flecha y enviando io al products_routers
+app.use("/api/products/", (req, res, next) => { req.io = io;
+                                                next();
+                                            } ,productsRouter); 
 app.use("/api/carts/", cartRouter);
 app.use("/", vistaRouter);
 
