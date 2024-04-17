@@ -1,0 +1,131 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+body {
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+}
+
+#container {
+    width: 100%;
+    padding: 0px 5%;
+    margin: 50px 0px;
+    text-align: center;
+    background: rgb(131,58,180);
+	background: -moz-linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 38%, rgba(38,73,208,1) 70%, rgba(244,69,252,1) 100%);
+	background: -webkit-linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 38%, rgba(38,73,208,1) 70%, rgba(244,69,252,1) 100%);
+	background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 38%, rgba(38,73,208,1) 70%, rgba(244,69,252,1) 100%);
+}
+
+form {
+    width: 100%;
+    margin: 0px auto;
+}
+
+form textarea, form input {
+    width: 40%;
+    display: flex;
+    margin: 10px 30% 20px;
+    border: 1px solid rgb(148, 148, 187);
+    padding-left:15px;
+    line-height: 40px;
+    font-family: monospace,'Courier New', Courier;
+}
+
+form textarea:focus-visible, form input:focus-visible {
+    border: 1px solid rgb(198, 161, 161);
+    outline: 0px;
+}
+
+form textarea {
+    height: 80px;
+}
+
+form input {
+    height: 40px;
+}
+
+input[type='submit'] {
+    border: 0px;
+    font-size: 20px;
+    background-color: cadetblue;
+    text-align: center;
+    color: white;
+    display: block;
+}
+
+label { 
+    display: block;
+    text-align: left;
+    width: 40%;
+    margin: 20px 30% 0px;
+    font-weight: 600;
+}
+
+#lista, #productos {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+h1 {
+    width: 100%;
+    line-height: 80px;
+    border-bottom: 1px solid black;
+    display: block;
+    background-color: darkgray;
+    color: white;
+    text-align: center;
+    margin: 0px auto;
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+    height: auto;
+    margin: 20px 10px;
+    box-shadow: 0px 0px 5px black;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: white;
+}
+
+ul li {
+    text-align: center;
+    list-style: none;
+    width: 100%;
+    line-height: 20px;
+    margin: 5px 0px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+ul li img {
+    border-radius: 10%;
+}
+
+a {
+    text-decoration: none;
+    font-weight: 800;
+    color: white;
+    width: 150px;
+    line-height: 60px;
+    display: block;
+    background-color: grey;
+    text-align: center;
+    margin: 20px auto;
+}
+
+#bloque {
+    text-align: center;
+}
+
+
+
+

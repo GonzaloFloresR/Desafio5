@@ -1,0 +1,45 @@
+const express = require("express");
+const path=require('path');
+const engine = require("express-handlebars").engine;
+const {Server} = require("socket.io"); 
+
+const {router:productsRouter} = require("./routes/products_routers.js");
+const cartRouter = require("./routes/carts_router.js");
+const vistaRouter = require("./routes/views_router.js");
+
+const PORT = 8080;
+const app = express();
+
+app.use(express.json()); 
+app.use(express.urlencoded({extended:true})); 
+
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname,'/views'));
+
+app.use(express.static(__dirname+'/public'));
+
+app.use("/api/products/", (req, res, next) => { req.io = io; next();} ,productsRouter); //Estoy agregando un middleware literal en flecha
+app.use("/api/carts/", cartRouter);
+app.use("/", vistaRouter);
+
+
+const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
+const io = new Server(serverHTTP);
+
+io.on("connection", socket => {
+    console.log(`Se conecto un cliente con el ID ${socket.id}`);
+
+    socket.emit("Saludo", "Bienvenido, identificate");
+
+    socket.on("id", nombre => {
+        console.log(`El cliente con id ${socket.id} se identifico con el nombre ${nombre}`);
+        
+        socket.broadcast.emit("nuevoUsuario", nombre );
+    });
+
+    socket.on("NuevoMensaje", (nombre, mensaje)=>{
+        io.emit("mensaje", nombre, mensaje);
+    });
+
+});
