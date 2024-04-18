@@ -100,7 +100,8 @@ const entorno = async () => {
                     request.io.emit("NuevoProducto", NewProduct);
                     
                     response.setHeader('Content-Type','application/json');
-                    response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"});
+                    //response.status(201).json({status:"succes", message:"Producto Agregado correctamente ✅"});
+                    response.redirect(302, '/home');
                 } else {
                     response.setHeader('Content-Type','application/json');
                     response.status(400).json({status:"error", message:"El producto no se pudo agregar"})

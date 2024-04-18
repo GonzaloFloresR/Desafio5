@@ -8,11 +8,16 @@
                     <li> {{description}} </li>
                     <li>$ {{price}} </li>
                     <li><img src={{thumbnail}} alt={{description}} width="250" > </li>
-                    <li>Código {{code}} </li>
+                    <li class="codigo">Código: {{code}} </li>
                     <li>Stock Actual {{stock}} </li>
                     <li><button class="comprar" >Agregar al carrito</button></li>
                 </ul>
             {{/each}}
     </div>
 </div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/script.js"></script>
 

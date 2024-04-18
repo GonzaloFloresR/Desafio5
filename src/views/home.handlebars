@@ -3,25 +3,25 @@
 <div id="container">
     <div id="productos">
         {{#if id}}
-            <ul>
+            <ul data-id={{producto.id}}>
                     <li><h3> {{producto.title}}<h3></li>
                     <li> {{producto.description}} </li>
                     <li>$ {{producto.price}} </li>
                     <li><img src={{producto.thumbnail}} alt={{producto.description}} width="250" > </li>
-                    <li>Código {{producto.code}} </li>
-                    <li>Stock Actual {{producto.stock}} </li>
+                    <li class="codigo">Código: {{producto.code}} </li>
+                    <li>Stock Actual: {{producto.stock}} </li>
                     <li><button class="comprar" data-id={{producto.id}} >Agregar al carrito</button></li>
                 </ul>
 
         {{else}}
             {{#each productos}}
-                <ul>
+                <ul data-id={{id}}>
                     <li><h3> {{title}}<h3></li>
                     <li> {{description}} </li>
                     <li>$ {{price}} </li>
                     <li><img src={{thumbnail}} alt={{description}} width="250" > </li>
-                    <li>Código {{code}} </li>
-                    <li>Stock Actual {{stock}} </li>
+                    <li class="codigo">Código: {{code}} </li>
+                    <li>Stock Actual: {{stock}} </li>
                     <li><button class="comprar" data-id={{id}} >Agregar al carrito</button></li>
                 </ul>
             {{/each}}
@@ -30,3 +30,5 @@
 </div>
 <div id="bloque"></div>
 <a href="/" title="Home Page">Home Page</a>
+
+<script src="/js/codigo.js"></script>

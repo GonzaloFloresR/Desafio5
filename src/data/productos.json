@@ -133,5 +133,41 @@
           "thumbnail": "../img/Dinero.jpeg",
           "code": "moneY123",
           "stock": "10000"
+     },
+     {
+          "id": 16,
+          "title": "Velas para cumpleaños",
+          "description": "Velas con diseño \"1\" y \"6\" ideal para cumpleaños de 16 y 61.",
+          "price": "1600",
+          "thumbnail": "../img/Velas.jpeg",
+          "code": "birtCand",
+          "stock": "45"
+     },
+     {
+          "id": 17,
+          "title": "Camión tipo Grua 18 ruedas",
+          "description": "Grúa con 18 ruedas gran camión",
+          "price": "132000000",
+          "thumbnail": "../img/camion.jpeg",
+          "code": "fulltrack",
+          "stock": "10"
+     },
+     {
+          "id": 18,
+          "title": "Golf",
+          "description": "Equipamiento para Golf",
+          "price": "2500000",
+          "thumbnail": "../img/golf.jpeg",
+          "code": "Golf019",
+          "stock": "15"
+     },
+     {
+          "id": 19,
+          "title": "20th Century Fox",
+          "description": "Productora y estudios al mejor precio",
+          "price": "500000000",
+          "thumbnail": "../img/20Fox.jpeg",
+          "code": "studios20",
+          "stock": "1"
      }
 ]

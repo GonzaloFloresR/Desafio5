@@ -1,6 +1,4 @@
-
 const socket = io();
-
 /* 
 let nombre = prompt("Ingrese su nombre");
 const bloque = document.getElementById("bloque");
