@@ -157,6 +157,7 @@ const entorno = async () => {
                 if(produc){
                     let borrado = await producto.deleteProduct(pid);
                     if(borrado){
+                        request.io.emit("ProductoEliminado", pid);
                         response.setHeader('Content-Type','application/json');
                         response.status(200).json({status:"succes", message:`Producto con ID ${pid} Eliminado ✅`});
                     } else {

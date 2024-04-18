@@ -30,14 +30,22 @@ socket.on("mensaje", (nombre, mensaje) => {
 */
 const divProductos = document.getElementById("productos");
 socket.on("NuevoProducto", NewProduct => {
-    divProductos.innerHTML += ` <ul>
+    divProductos.innerHTML += ` <ul data-id=${NewProduct.id}>
                                     <li><h3> ${NewProduct.title}<h3></li>
                                     <li> ${NewProduct.description} </li>
                                     <li>$ ${NewProduct.price} </li>
                                     <li><img src=${NewProduct.thumbnail} alt=${NewProduct.description} width="250" > </li>
                                     <li>Código ${NewProduct.code} </li>
                                     <li>Stock Actual ${NewProduct.stock} </li>
-                                    <li><button class="comprar" data-id=${NewProduct.id} >Agregar al carrito</button></li>
+                                    <li><button class="comprar">Agregar al carrito</button></li>
                                 </ul>`;
+});
+
+socket.on("ProductoEliminado", pid => {
+    let lista = document.getElementById("productos");
+    let productoEliminar =lista.querySelector("ul[data-id='"+pid+"']");
+    if(productoEliminar){
+        productoEliminar.remove();
+    }
 });
 
