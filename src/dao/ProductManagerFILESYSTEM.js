@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-class ProductManager {
+class ProductManagerFILESYSTEM {
     #products;
     #path;
 
@@ -130,4 +130,4 @@ class ProductManager {
 
 }
 
-module.exports = ProductManager;
+module.exports = ProductManagerFILESYSTEM;

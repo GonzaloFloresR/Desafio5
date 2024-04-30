@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const path=require('path');
 const engine = require("express-handlebars").engine;
 const {Server} = require("socket.io"); 
@@ -46,3 +47,14 @@ io.on("connection", socket => {
     });
 
 });
+
+const connDB = async () => {
+    try {
+        await mongoose.connect("mongodb+srv://gonzalof:Coder098@cluster0.pt1wq7n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    {dbName:"IwasIn"});
+    console.log("DB MONGO ONLINE");
+    } catch (error) {
+        console.log("Error al conectar a la DB", error.message)
+    }
+} 
+connDB();

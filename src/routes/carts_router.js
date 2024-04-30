@@ -2,7 +2,7 @@ const Router = require("express");
 const router = Router();
 const path = require("path");
 
-const CartsManager = require("../classes/CartsManager.js");
+const CartsManager = require("../dao/CartsManager.js");
 const RutaCarrito = path.join(__dirname,"../data/carrito.js");
 
 

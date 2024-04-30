@@ -3,7 +3,8 @@ const router = Router();
 const path = require("path");
 const rutaProductos = path.join(__dirname,`../data/productos.json`);
 
-const productManager = require("../classes/ProductManager");
+//const productManager = require("../dao/ProductManagerFILESYSTEM.js");
+const productManager = require("../dao/ProductManagerMONGO.js");
 const { query } = require("express");
 const ProductManager = new productManager(rutaProductos);
 
@@ -18,11 +19,11 @@ router.get("/inicio", (req, res) =>{
     res.status(200).render("index",{datos});
 });
 
-router.get("/home", (req, res) =>{
+router.get("/home", async (req, res) => {
     let {id} = req.query;
     let productos;
         try { 
-            productos = ProductManager.getProducts();
+            productos = await ProductManager.getProducts();
         } catch(error){ 
             console.log(error);
             res.setHeader('Content-Type','application/json');
@@ -30,42 +31,44 @@ router.get("/home", (req, res) =>{
         }
 
     if(!id){
-
-        datos = {   title:"Página de Productos",
-        description:"Lista de productos",
-        keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
-        author:"Gonzalo Flores"
+        datos = {   
+            title:"Página de Productos",
+            description:"Lista de productos",
+            keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
+            author:"Gonzalo Flores"
         }
-
         res.setHeader("Content-Type","text/html");
         res.status(200).render("home",{productos, datos});
-    } else {
-        id = Number(id);
-        if(isNaN(id)){  res.setHeader("Content-Type","application/json");
-                        res.status(401).json({error:"Ingrese un ID numérico"});
-        }
+    } 
+    else {
+        /* id = Number(id);
+        if(isNaN(id)){ 
+            res.setHeader("Content-Type","application/json");
+            res.status(401).json({error:"Ingrese un ID numérico"});
+        } */
 
-        datos = {   title:"Página de Producto seleccionado",
-        description:"Producto seleccionado por el ID",
-        keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
-        author:"Gonzalo Flores"
-    }
-                    let producto;
-                    try {
-                        producto = ProductManager.getProductById(id);
-                    } catch (error){
-                        console.log(error);
-                        res.setHeader('Content-Type','application/json');
-                        res.status(500).json({error:`Error inesperado en el servidor`});
-                    }
-        
-        
+        datos = {   
+            title:"Página de Producto seleccionado",
+            description:"Producto seleccionado por el ID",
+            keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
+            author:"Gonzalo Flores"
+        }
+            
+        let producto;
+        try {
+                producto = await ProductManager.getProductBy({_id:id});
+            } 
+        catch (error){
+                console.log(error);
+                res.setHeader('Content-Type','application/json');
+                res.status(500).json({error:`Error inesperado en el servidor`});
+            }
         res.setHeader("Content-Type","text/html");
         res.status(200).render("home",{producto, datos, id});
     }
 });
 
-router.get("/realtimeproducts", (req, res) =>{
+router.get("/realtimeproducts", async(req, res) =>{
     datos = {   title:"Bienvenido a mi primera plantilla Handlebars 2024 JS",
                     nombre:"Gonzalo",
                     description:"Utilización de plantillas Handlebars en el curso de bankEnd de CoderHouse",
@@ -75,16 +78,16 @@ router.get("/realtimeproducts", (req, res) =>{
 
     let productos;
     try { 
-        productos = ProductManager.getProducts();
+        productos = await ProductManager.getProducts();
+        res.setHeader("Content-Type","text/html");
+        res.status(200).render("realTimeProducts",{productos, datos});
+        console.log(productos, "DESDE VIEW ROUTER");
     } catch(error){ 
         console.log(error);
         res.setHeader('Content-Type','application/json');
         res.status(500).json({error:`Error inesperado en el servidor`});
     }
-            
-                
-    res.setHeader("Content-Type","text/html");
-    res.status(200).render("realTimeProducts",{productos, datos});
+    
 });
 
 
