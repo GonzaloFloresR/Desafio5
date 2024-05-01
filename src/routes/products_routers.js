@@ -1,14 +1,10 @@
 const Router = require("express").Router;
 const router = Router();
 
-const path = require("path");
-
 const ProductManager = require("../dao/ProductManagerMONGO.js");
-
-
 const uploader = require("../utils.js");
 const { isValidObjectId } = require("mongoose");
-const { BSON } = require("mongodb");
+;
 
 const entorno = async () => {
 
@@ -30,7 +26,6 @@ const entorno = async () => {
                         response.status(500).json({error:"Error inesperado en el servidor - intente más tarde", detalle:`${error.message}`});
                         return
                     }
-                    
                 }
             } else {
                 response.setHeader('Content-Type','application/json');
@@ -66,12 +61,9 @@ const entorno = async () => {
                 return response.status(400).json({erro:'Ingrese un ID valido de MongoDB'})
             } else {
                 try {
-                    
-                    pid = new BSON.ObjectId(pid);
-                    productos = producto.getProductBy({_id:pid});
+                    productos = await producto.getProductBy({_id:pid});
                     response.setHeader('Content-Type','application/json');
                     response.status(200).json(productos);
-                    console.log({_id:`${pid}`}, "Desde el producto Routers");
                 }
                 catch(error){
                     console.log(error);
@@ -156,7 +148,6 @@ const entorno = async () => {
                     let productos;
                     try {
                         productos = await producto.getProductBy({_id:agregado._id});
-                        console.log(productos, typeof productos );
                     } 
                     catch(error){ 
                         console.log(error);

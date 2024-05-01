@@ -23,7 +23,7 @@ class ProductManagerMONGO{
 
     async getProductBy(filtro){
         try {
-            return await productoModelo.findOne(filtro);
+            return await productoModelo.findOne(filtro).lean();
         } catch(error){
             console.log(error,"Error desde getProductBy")
         }

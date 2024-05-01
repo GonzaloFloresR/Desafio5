@@ -81,7 +81,7 @@ router.get("/realtimeproducts", async(req, res) =>{
         productos = await ProductManager.getProducts();
         res.setHeader("Content-Type","text/html");
         res.status(200).render("realTimeProducts",{productos, datos});
-        console.log(productos, "DESDE VIEW ROUTER");
+        
     } catch(error){ 
         console.log(error);
         res.setHeader('Content-Type','application/json');
