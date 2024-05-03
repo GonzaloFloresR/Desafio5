@@ -1,13 +1,13 @@
 let mongoose = require("mongoose");
 
-const productCollection = "productos";
+const productCollection = "products";
 const productosEsquema = new mongoose.Schema({
     title: String,
     description: String,
-    price: String,
+    price: Number,
     thumbnail: String,
-    code: String,
-    stock: String
+    code: {type: String, unique: true, required:true},
+    stock: Number
 },{
     timestamps:true
 });

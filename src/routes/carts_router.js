@@ -1,45 +1,89 @@
 const Router = require("express");
 const router = Router();
 const path = require("path");
-
 const CartsManager = require("../dao/CartsManager.js");
-const RutaCarrito = path.join(__dirname,"../data/carrito.js");
+const {isValidObjectId} = require("mongoose");
 
 
-const entorno = async () => { //abriendo entorno async
-    const carrito = new CartsManager(RutaCarrito);
-    try{
-        await carrito.inicializar();
+const entorno = async() => { 
+    const cartManager = new CartsManager();
+
+    router.get("/", (request, response) => {
+        try {
+            let carrito = cartManager.getCarritos();
+            if(carrito){
+                response.setHeader('Content-Type','application/json');
+                return response.status(200).json(carrito);
+            } else {
+                response.setHeader('Content-Type','application/json');
+                return response.status(400).json({error:`No hay carritos activos ❌`});
+            }
+        }
+        catch(error){
+            console.log(error);
+            response.setHeader('Content-Type','application/json');
+            return response.status(500).json({
+                error:"Error inesperado en el servidor - intente más tarde",
+                detalle:`${error.message}`});
+            
+        } 
+    });
+
+    router.get("/:cid", async(request, response) => {
+        let {cid} = request.params;
         
-    }
-    catch(error){
-        console.log(error.message);
-        return
-    }
+        if(!isValidObjectId(cid)){
+            response.setHeader('Content-Type','application/json');
+            return response.json({error:"Ingrese un ID Valido de Mongo"});
+        } else {
+            try {
+                let carrito = cartManager.getCarritotById({_id:cid});
+                if(carrito){
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(200).json(carrito.products);
+                } else {
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(400).json({error:`No existe carrito con el ID ${cid}`});
+                }
+            }
+            catch(error){
+                console.log(error);
+                response.setHeader('Content-Type','application/json');
+                return response.status(500).json({
+                    error:"Error inesperado en el servidor - intente más tarde",
+                    detalle:`${error.message}`});
+            } 
+        }
+    });
 
-
-    router.post("/", async (request, response) => {
-    
+    router.post("/", async(request, response) => {
         let {products} = request.body; 
         
         if(!products){
             response.setHeader('Content-Type','application/json');
-            return response.status(400).json({status:"error", error:"Debe Agregar productos al carrito 🛑"});
+            return response.status(400).json({status:"error", error:"Debe Agregar productos al carrito"});
         } else {
-            let agregado = await  carrito.crearCarrito(products);
-            if(agregado){
-                try {
+            try {
+                let agregado = await cartManager.crearCarrito(products);
+                if(agregado){
                     response.setHeader('Content-Type','application/json');
-                    response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"})
-                } catch(error){
+                    return response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"});
+                } else {
                     response.setHeader('Content-Type','application/json');
                     response.status(400).json({status:"error", message:"El producto no se pudo agregar"})
                 }
+            } 
+            catch(error){
+                console.log(error);
+                response.setHeader('Content-Type','application/json');
+                return response.status(500).json({
+                    error:"Error inesperado en el servidor - intente más tarde",
+                    detalle:`${error.message}`});
             }
         }
     });
 
-    router.post("/:cid/product/:pid", async (request, response) => {
+    router.post("/:cid/product/:pid", async(request, response) => {
         let cid = request.params.cid;
         let pid = request.params.pid;
         let carritos = carrito.getCarritos();
@@ -61,38 +105,8 @@ const entorno = async () => { //abriendo entorno async
         }
     });
 
-
-
-    router.get("/:cid",(request, response) => {
-        let carritos = carrito.getCarritos();
-        let cid = request.params.cid;
-        cid = Number(cid);
-        if(isNaN(cid)){
-            response.setHeader('Content-Type','application/json');
-            response.json({error:"Ingrese un ID numérico"});
-        } else {
-            let carro = carritos.find((cart)=> cart.cid == cid );
-            if(carro){
-                response.setHeader('Content-Type','application/json');
-                response.status(200).json(carro.products);
-            } else {
-                response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:`No existe carrito con el ID ${cid}`});
-            }
-        }
-    });
-
-    router.get("/", (request, response) => {
-        response.setHeader('Content-Type','application/json');
-        response.status(200).json({mensaje:"Estamos en Carts"});
-        
-    });
-
-
-
 } //cerrando entorno async
 
 entorno();
-
 
 module.exports = router;

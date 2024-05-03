@@ -1,100 +1,100 @@
 const Router = require("express").Router;
 const router = Router();
-
 const ProductManager = require("../dao/ProductManagerMONGO.js");
 const uploader = require("../utils.js");
-const { isValidObjectId } = require("mongoose");
-;
+const {isValidObjectId} = require("mongoose");
 
 const entorno = async () => {
-
-    const producto = new ProductManager();
+    const productManager = new ProductManager();
     
-    router.get("/", async (request, response) => {
+    router.get("/", async(request, response) => {
         let productos;
-        //Confirmar si existen queries
-        let limit = request.query.limit;
+        let {limit} = request.query;
         if(limit){
             limit = Number(limit);
-            if(!(isNaN(limit))){
-                if (limit > 0){
+            if(!isNaN(limit)){
+                if(limit > 0){
                     try {
-                        productos = await producto.getProducts(limit); //agregar limite
-                    } catch(error){
+                        productos = await productManager.getProducts(limit);
+                        response.setHeader('Content-Type','application/json');
+                        response.status(200).json(productos);
+                    } catch(error) {
                         console.log(error);
                         response.setHeader('Content-Type','application/json');
-                        response.status(500).json({error:"Error inesperado en el servidor - intente más tarde", detalle:`${error.message}`});
-                        return
+                        return response.status(500).json({
+                                error:"Error inesperado en el servidor - intente más tarde",
+                                detalle:`${error.message}`
+                            });
                     }
-                }
+                } //Cerrando if limit > 0
             } else {
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:"Los limites deben ser numericos"});
+                response.status(400).json({error:"Los limites deben ser datos numericos"});
             }
-        } else {
+        } else { // Si no existe limit
             try { 
-            productos = await producto.getProducts();
+                productos = await productManager.getProducts();
+                response.setHeader('Content-Type','application/json');
+                response.status(200).json(productos);
             } catch(error){ 
                 console.log(error);
                 response.setHeader('Content-Type','application/json');
-                response.status(500).json({error:"Error inesperado en el servidor - intente más tarde", detalle:`${error.message}`});
-                return
+                response.status(500).json({
+                    error:"Error inesperado en el servidor - intente más tarde",
+                    detalle:`${error.message}`});
+                return;
             }
         }
-        
-        response.setHeader('Content-Type','application/json');
-        response.status(200).json(productos);
-        
     });
-    // -------------------------------------------------------------------------------------------
-    router.get("/:pid", async (request, response) => {
-        let productos;
-        //Verifica si existe un pid en los paramas
+
+    router.get("/:pid", async(request, response) => {
+        let producto;
         let {pid} = request.params;
-        /* pid = Number(pid);
-        if(isNaN(pid)){
-            response.json({error:"Ingrese un ID numérico"});
-        } else {} */
         if(pid){
             if(!isValidObjectId(pid)){
                 response.setHeader('Content-Type','application/json');
                 return response.status(400).json({erro:'Ingrese un ID valido de MongoDB'})
             } else {
                 try {
-                    productos = await producto.getProductBy({_id:pid});
-                    response.setHeader('Content-Type','application/json');
-                    response.status(200).json(productos);
+                    producto = await productManager.getProductBy({_id:pid});
                 }
                 catch(error){
                     console.log(error);
                     response.setHeader('Content-Type','application/json');
                     return response.status(500).json(
                         {
-                            error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+                            error:`Error inesperado en el servidor`,
                             detalle:`${error.message}`
                         }
                     );
                 }
+                if(producto){
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(200).json(producto);
+                } else {
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(400).json({error:`No existe producto con ID ${pid}`}
+                    );
+                }
             }
             
-        } else {
+        } else { //Si no existe params.pid
             try { 
-                productos = await producto.getProducts();
+                let productos = await productManager.getProducts();
                 response.setHeader('Content-Type','application/json');
-                response.status(200).json(productos);
+                return response.status(200).json(productos);
     
             } catch(error){ 
                 console.log(error);
                 response.setHeader('Content-Type','application/json');
                 return response.status(500).json(
                     {
-                        error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+                        error:`Error inesperado en el servidor`,
                         detalle:`${error.message}`
                     }
                 );
             }
         }
-    
     });
     
     router.post("/", uploader.single('thumbnail'), async(request, response) => {
@@ -108,139 +108,222 @@ const entorno = async () => {
         let existe;
         if(!title || !description || !price || !code || !stock){
             response.setHeader('Content-Type','application/json');
-            return response.status(400).json({error:"valores requeridos title, description, price, code, stock"});
-
+            return response.status(400).json(
+                {error:"valores requeridos title, description, price, code, stock"}
+            );
         } else {
-
             code = code.trim();
             try { 
-                existe = await producto.getProductBy({code:code});
+                existe = await productManager.getProductBy({code:code});
             }
-            catch (error) {
+            catch(error) {
+                console.log(error);
                 response.setHeader('Content-Type','application/json');
                 return response.status(500).json(
                     {
-                        error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+                        error:`Error inesperado en el servidor`,
                         detalle:`${error.message}`
                     }
                 );
             }   
-
             if(!existe){ 
-
                 if (thumbnail){
-                    thumbnail = thumbnail.replace("/Applications/MAMP/htdocs/ClaseBackend/Desafio5/src/public", "..")
+                    thumbnail = thumbnail.replace("/Applications/MAMP/htdocs/ClaseBackend/Desafio5/src/public", "..");
                 }  
-
                 let nuevoProducto = {
-                        title:title,
-                        description:description,
-                        price:price,
-                        thumbnail:thumbnail || "../img/SinImagen.png",
-                        code:code,
-                        stock:stock
-                    };
-
-                let agregado = await producto.addProduct(nuevoProducto);
-                    console.log(agregado._id);
+                    title:title,
+                    description:description,
+                    price:price,
+                    thumbnail:thumbnail || "../img/SinImagen.png",
+                    code:code,
+                    stock:stock
+                };
+                //Agregando nuevoProducto a la BD
+                let agregado
+                try {
+                    agregado = await productManager.addProduct(nuevoProducto);
+                } catch(error) {
+                    console.log(error);
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(500).json(
+                        {
+                            error:`Error inesperado en el servidor`,
+                            detalle:`${error.message}`
+                        }
+                    );
+                };
+                
                 if(agregado){
-
+                    //recuperando el productos agregado para enviarlo al realtime front
                     let productos;
                     try {
-                        productos = await producto.getProductBy({_id:agregado._id});
+                        productos = await productManager.getProductBy({_id:agregado._id});
+                        request.io.emit("NuevoProducto", productos);
+                        response.setHeader('Content-Type','application/json');
+                        return response.status(201).json({payload:agregado}); 
                     } 
-                    catch(error){ 
+                    catch(error) { 
                         console.log(error);
-                        return
+                        response.setHeader('Content-Type','application/json');
+                        return response.status(500).json(
+                            {
+                                error:`Error inesperado en el servidor`,
+                                detalle:`${error.message}`
+                            }
+                        );
                     }
-
-                    request.io.emit("NuevoProducto", productos);
-                    response.setHeader('Content-Type','application/json');
-                    response.redirect(302, '/home');
-
                 } else { //Cerrando si se agrego
-
                     response.setHeader('Content-Type','application/json');
                     response.status(400).json({status:"error", message:"El producto no se pudo agregar"});
-
                 }
             } else { //Si se encuentra el "code" en la Base de datos
-
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({status:"error", message:`Codigo Repetido ${code}`});
+                response.status(400).json(
+                    {   
+                        status:"error",
+                        message:`Codigo Repetido ${code}`
+                    }
+                );
             } //fin condición !existe
-            
         } //cerrando "else" donde confirmamos recibir todos los datos del productos
     });
 
     router.put("/:pid", async(request, response) => {
-
-        let {title,description,price,thumbnail,code,stock} = request.body; //Recordemos que el request.body el json que enviara el usuario al momento de hacer la petición
         //Debería verificar que al menos modifique una propiedad.
-        let pid = request.params.pid;
+        let {pid} = request.params;
         if(!pid){
             response.setHeader('Content-Type','application/json');
-            response.status(400).json({error:`Debe ingresar el ID del producto a modificar`});
+            return response.status(400).json({error:`Debe ingresar el ID del producto a modificar`});
         } else {
-            pid = Number(pid);
-            if(isNaN(pid)){
+            let producto;
+            if(!isValidObjectId(pid)){
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:"Ingrese un ID numérico"});
+                return response.status(400).json({error:"Ingrese un ID Valido para MongoDB"});
             } else {
                 //busco si existe producto con ese ID
-                let produc = await producto.getProductById(pid);
-                if(produc){
+                try {
+                    producto = await productManager.getProductBy({_id:pid});
+                } catch(error){
+                    console.log(error);
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(500).json(
+                        {
+                            error:`Error inesperado en el servidor`,
+                            detalle:`${error.message}`
+                        }
+                    );
+                }
+                
+                if(producto){
                     //modifico el producto
-                    let modificado = await producto.updateProduct(pid, {title,description,price,thumbnail,code,stock});
-                    if(modificado){
+                    let modificado;
+                    let modificaciones = request.body;
+                    console.log(modificaciones);
+                    if(modificaciones._id){
+                        //Si entre las modificaciones incluye el _id,
+                        // eliminio esa propiedad, dado que no se debe modificar el _id
+                        delete modificaciones._id; 
+                    }
+                    if(modificaciones.code){
+                        try {
+                            existe = await productManager.getProductBy({_id:{$ne:pid},code:modificaciones.code});
+                            if(existe){
+                                response.setHeader('Content-Type','application/json');
+                                return response.status(400).json({error:`Ya existe un producto con el code ${modificaciones.code}`});
+                            }
+                        }
+                        catch(error){
+                            console.log(error);
+                            response.setHeader('Content-Type','application/json');
+                            return response.status(500).json(
+                                {
+                                    error:`Error inesperado en el servidor`,
+                                    detalle:`${error.message}`
+                                }
+                            );
+                        }
+                    }
+                    try {
+                        modificado = await productManager.updateProduct(pid, modificaciones);
+                    } catch(error){
+                        console.log(error);
                         response.setHeader('Content-Type','application/json');
-                        response.status(200).json({status:"succes", message:`Usuario con ID ${pid} modificado`});
+                        return response.status(500).json(
+                            {
+                                error:`Error inesperado en el servidor`,
+                                detalle:`${error.message}`
+                            }
+                        );
+                    } if(modificado){
+                        request.io.emit("ProductoActualizado", modificado);
+                        response.setHeader('Content-Type','application/json');
+                        return response.status(200).json({modificado});
                     } else {
                         response.setHeader('Content-Type','application/json');
-                        response.status(500).json({error:`Error al intentar actualizar el producto ${pid}`});
+                        return response.status(500).json({status:"error", message:`No se pudo modificar ID ${pid}`});
                     }
                 } else {
                     response.setHeader('Content-Type','application/json');
-                    response.status(400).json({error:`No existe un producto con el ID ${pid}`});
+                    return response.status(400).json({error:`No existe un producto con el ID ${pid}`});
                 }
             }
         }
     });
 
-    router.delete("/:pid", async (request, response) => {
+    router.delete("/:pid", async(request, response) => {
         let pid = request.params.pid;
         if(!pid){
             response.setHeader('Content-Type','application/json');
-            response.status(400).json({error:`Debe ingresar el ID del producto a eliminar 🛑`});
+            response.status(400).json({error:`Debe ingresar el ID del producto a eliminar`});
         } else {
-            pid = Number(pid);
-            if(isNaN(pid)){
+            if(!isValidObjectId(pid)){
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:"Ingrese un ID numérico 🛑"});
+                response.status(400).json({error:"Ingrese un ID numérico "});
             } else {
-                let produc = await producto.getProductById(pid);
-                if(produc){
-                    let borrado = await producto.deleteProduct(pid);
+                let producto;
+                try {
+                    producto = await productManager.getProductBy({_id:pid});
+                } catch(error){
+                    console.log(error);
+                    response.setHeader('Content-Type','application/json');
+                    return response.status(500).json(
+                        {
+                            error:`Error inesperado en el servidor`,
+                            detalle:`${error.message}`
+                        }
+                    );
+                }
+                if(producto){
+                    let borrado;
+                    try {
+                        borrado = await productManager.deleteProduct({_id:pid});
+                    } catch(error){
+                        console.log(error);
+                        response.setHeader('Content-Type','application/json');
+                        return response.status(500).json(
+                            {
+                                error:`Error inesperado en el servidor`,
+                                detalle:`${error.message}`
+                            }
+                        );
+                    }
                     if(borrado){
                         request.io.emit("ProductoEliminado", pid);
                         response.setHeader('Content-Type','application/json');
-                        response.status(200).json({status:"succes", message:`Producto con ID ${pid} Eliminado ✅`});
+                        return response.status(200).json({status:"succes", message:`Producto con ID ${pid} Eliminado ✅`});
                     } else {
                         response.setHeader('Content-Type','application/json');
-                        response.status(500).json({error:`Error al intentar elimimnar el producto ${pid} ❌`});
+                        return response.status(500).json({error:`Error al intentar elimimnar el producto ${pid}`});
                     }
-                } else {
+                } else { //Si el producto no existe
                     response.setHeader('Content-Type','application/json');
-                    response.status(400).json({error:`No existen producto con el ID ${pid} 🛑`});
+                    return response.status(400).json({error:`No existe producto con el ID ${pid}`});
                 }
             }
         }
     });
-
-
-//Cerrando entorno()
-}
+}//Cerrando entorno()
 
 entorno();
 
-module.exports = {router};
+module.exports = router;

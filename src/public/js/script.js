@@ -35,6 +35,7 @@ socket.on("NuevoProducto", NewProduct => {
                                     <li>$ ${NewProduct.price} </li>
                                     <li><img src=${NewProduct.thumbnail} alt=${NewProduct.description} width="250" > </li>
                                     <li>Código ${NewProduct.code} </li>
+                                    <li class="codigo">Id: ${NewProduct._id}</li>
                                     <li>Stock Actual ${NewProduct.stock} </li>
                                     <li><button class="comprar" data-id=${NewProduct._id} onclick="Agregar()" >Agregar al carrito</button></li>
                                 </ul>`;
@@ -47,6 +48,22 @@ socket.on("ProductoEliminado", pid => {
         productoEliminar.remove();
     }
 });
+
+socket.on("ProductoActualizado", NewProduct => {
+    let lista = document.getElementById("productos");
+    let productoActualizar =lista.querySelector("ul[data-id='"+NewProduct._id+"']");
+    productoActualizar.innerHTML = "";
+    productoActualizar.innerHTML += `
+                                    <li><h3> ${NewProduct.title}<h3></li>
+                                    <li> ${NewProduct.description} </li>
+                                    <li>$ ${NewProduct.price} </li>
+                                    <li><img src=${NewProduct.thumbnail} alt=${NewProduct.description} width="250" > </li>
+                                    <li>Código ${NewProduct.code} </li>
+                                    <li>Stock Actual ${NewProduct.stock} </li>
+                                    <li><button class="comprar" data-id=${NewProduct._id} onclick="Agregar()" >Agregar al carrito</button></li>`;
+});
+
+
 
 function handleClick(event) {
     const dataId = event.target.getAttribute('data-id'); // Obtener el valor del atributo data-id

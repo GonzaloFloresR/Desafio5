@@ -3,7 +3,7 @@ const productoModelo = require("../dao/models/ProductModel");
 class ProductManagerMONGO{
 
     async getProducts(limit){
-        try{
+        try {
             return await productoModelo.find().limit(limit).lean();
         }
         catch(error){
@@ -30,8 +30,8 @@ class ProductManagerMONGO{
     } 
 
     async updateProduct(id, Update){
-        try{
-            return await productoModelo.updateOne(Update);
+        try {
+            return await productoModelo.findByIdAndUpdate(id, Update,{runValidators:true, returnDocument:"after"});
         }
         catch(error){
             console.log(error, "Error desde updateProduct");
