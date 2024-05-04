@@ -36,23 +36,27 @@ app.use("/", vistasRouter);
 const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
 const io = new Server(serverHTTP);
 
-//let usuarios = [];
-//let mensajes = [];
+let usuarios = [];
+let mensajes = [];
 
 io.on("connection", socket => {
     console.log(`Se conecto un cliente con el ID ${socket.id}`);
-
+    
     socket.on("id", async(nombre) => {
-        //usuarios.push({id:socket.id, nombre});
-        let usuario = await mensajesModelo.create({});
-
+        usuarios.push({id:socket.id, nombre});
+        try {mensajes = await mensajesModelo.find().lean();}
+        catch(error){`Error desde el servidor recuperando mensajes ${error}`}
+        console.log(mensajes);
         socket.emit("mensajesPrevios", mensajes);
-
         socket.broadcast.emit("nuevoUsuario", nombre ); //Le envio a todos menos al que se conecto
     });
 
     socket.on("mensaje", async(nombre, mensaje) => {
-        //mensajes.push({nombre, mensaje}); //Guadar mensajes para historial
+        //mensajes.push({nombre, mensaje}); // Guadar mensajes
+        try {
+            let guardado = await mensajesModelo.create({user:nombre,message:mensaje});
+        } catch(error){`Error en el servidor guardando mensajes ${error}`}
+        
         io.emit("nuevoMensaje", nombre, mensaje); //io envia a Todos
     });
 

@@ -28,7 +28,7 @@ Swal.fire({
 
     socket.on("mensajesPrevios", mensajes => {
         mensajes.forEach( mensaje => {
-            divMensajes.innerHTML += `<span class="mensaje"><strong>${mensaje.nombre}</strong> dice: <i>${mensaje.mensaje}</i></span>`;
+            divMensajes.innerHTML += `<span class="mensaje"><strong>${mensaje.user}</strong> dice: <i>${mensaje.message}</i></span>`;
             divMensajes.scrollTop = divMensajes.scrollHeight;
         });
     });
