@@ -5,15 +5,16 @@ const rutaProductos = path.join(__dirname,`../data/productos.json`);
 const productManager = require("../dao/ProductManagerMONGO.js");
 const ProductManager = new productManager(rutaProductos);
 
-router.get("/inicio", (req, res) =>{
-    datos = {   title:"Bienvenido a mi primera plantilla Handlebars 2024 JS",
+router.get("/chat", (req, res) =>{
+    datos = {   title:"Bienvenido a mi Chat - Hecho con WebSocket 2024 GFR",
                     nombre:"Gonzalo",
-                    description:"Utilización de plantillas Handlebars en el curso de bankEnd de CoderHouse",
-                    keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
+                    description:`Utilización de plantillas Handlebars y websocket
+                    para crear mi primer Chat Online - Curso de BankEnd de CoderHouse`,
+                    keywords:"Chat, WebSocket, Plantillas, handlebars, JS, Coderhouse, Cursos BackEnd",
                     author:"Gonzalo Flores"
                 }
     res.setHeader("Content-Type","text/html");
-    res.status(200).render("index",{datos});
+    res.status(200).render("chat",{datos});
 });
 
 router.get("/home", async(req, res) => {

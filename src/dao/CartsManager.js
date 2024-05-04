@@ -1,6 +1,6 @@
 const cartsModelo = require("../dao/models/CartModel.js");
 
-class CartsManager{
+class CartsManager {
 
     async getCarritos(limit){
         try {
@@ -22,7 +22,7 @@ class CartsManager{
 
     async getCarritotById(cid){
         try {
-            return cartsModelo.findById(cid); //{_id:cid}
+            return await cartsModelo.findById(cid); //{_id:cid}
         } 
         catch(error){console.log(error, "Error en el getCarritoById")}
     }
@@ -33,6 +33,29 @@ class CartsManager{
         }
         catch(error){
             console.log(error, "Error desde updateCart");
+        }
+    }
+
+    async updateProduct(cid, update){
+
+        const carrito = cartsModelo.findById({_id:cid});
+        if(carrito){
+                let producto = carrito.products.find((prod) => prod.productId == pid);
+                if(producto){
+                    producto.quantity += 1;
+                } else {
+                    carrito.products.push({productId:pid, quantity:1 });
+                }
+            try {
+                await guardarArchivo(); 
+                return true ; // `Archivo Actualizado`
+            }
+            catch(error){
+                console.log(error.message);
+            }
+            
+        } else {
+            return false; // `El carrito con el id: ${cid} no existe`
         }
     }
 

@@ -4,9 +4,11 @@ const path = require('path');
 const {engine} = require("express-handlebars");
 const {Server} = require("socket.io"); 
 
+const mensajesModelo = require("./dao/models/MenssageModel.js");
+
 const productsRouter = require("./routes/products_routers.js");
 const cartRouter = require("./routes/carts_router.js");
-const vistaRouter = require("./routes/views_router.js");
+const vistasRouter = require("./routes/views_router.js");
 
 const PORT = 8080;
 const app = express();
@@ -29,23 +31,37 @@ app.use("/api/products/", (req, res, next) => {
     productsRouter
 ); 
 app.use("/api/carts/", cartRouter);
-app.use("/", vistaRouter);
+app.use("/", vistasRouter);
 
 const serverHTTP = app.listen(PORT, () => console.log(`Server online en puerto ${PORT}`)); 
 const io = new Server(serverHTTP);
 
+//let usuarios = [];
+//let mensajes = [];
+
 io.on("connection", socket => {
     console.log(`Se conecto un cliente con el ID ${socket.id}`);
-    socket.emit("Saludo", "Bienvenido, identificate");
 
-    socket.on("id", nombre => {
-        console.log(`El cliente con id ${socket.id} se identifico con el nombre ${nombre}`);        
-        socket.broadcast.emit("nuevoUsuario", nombre );
+    socket.on("id", async(nombre) => {
+        //usuarios.push({id:socket.id, nombre});
+        let usuario = await mensajesModelo.create({});
+
+        socket.emit("mensajesPrevios", mensajes);
+
+        socket.broadcast.emit("nuevoUsuario", nombre ); //Le envio a todos menos al que se conecto
     });
 
-    socket.on("NuevoMensaje", (nombre, mensaje)=>{
-        io.emit("mensaje", nombre, mensaje);
+    socket.on("mensaje", async(nombre, mensaje) => {
+        //mensajes.push({nombre, mensaje}); //Guadar mensajes para historial
+        io.emit("nuevoMensaje", nombre, mensaje); //io envia a Todos
     });
+
+    socket.on("disconnect", () => {
+        let usuario = usuarios.find(user => user.id === socket.id);
+        if(usuario){
+            io.emit("saleUsuario", usuario.nombre)
+        }
+    })
 });
 
 const connDB = async () => {

@@ -39,7 +39,7 @@ class ProductManagerMONGO{
     }
 
     async deleteProduct(pid){
-        try{
+        try {
             return await productoModelo.deleteOne(pid);
         }
         catch(error){

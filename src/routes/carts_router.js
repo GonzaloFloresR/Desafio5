@@ -2,15 +2,17 @@ const Router = require("express");
 const router = Router();
 const path = require("path");
 const CartsManager = require("../dao/CartsManager.js");
+const ProductManager = require("../dao/ProductManagerMONGO.js");
 const {isValidObjectId} = require("mongoose");
 
 
 const entorno = async() => { 
     const cartManager = new CartsManager();
+    const productManager = new ProductManager();
 
-    router.get("/", (request, response) => {
+    router.get("/", async (request, response) => {
         try {
-            let carrito = cartManager.getCarritos();
+            let carrito = await cartManager.getCarritos();
             if(carrito){
                 response.setHeader('Content-Type','application/json');
                 return response.status(200).json(carrito);
@@ -37,7 +39,7 @@ const entorno = async() => {
             return response.json({error:"Ingrese un ID Valido de Mongo"});
         } else {
             try {
-                let carrito = cartManager.getCarritotById({_id:cid});
+                let carrito = await cartManager.getCarritotById({_id:cid});
                 if(carrito){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json(carrito.products);
@@ -63,8 +65,14 @@ const entorno = async() => {
             response.setHeader('Content-Type','application/json');
             return response.status(400).json({status:"error", error:"Debe Agregar productos al carrito"});
         } else {
+                products.forEach(element => {
+                    isValidObjectId()
+                });
+
+
+
             try {
-                let agregado = await cartManager.crearCarrito(products);
+                let agregado = await cartManager.crearCarrito({products});
                 if(agregado){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json({status:"succes", message:"Producto Agregado correctamente ✅"});
@@ -93,7 +101,7 @@ const entorno = async() => {
             response.setHeader('Content-Type','application/json');
             response.status(400).json({error:"Ingrese un cid y pid numéricos"});
         } else {
-            let hecho = carrito.updateProduct(cid,pid);
+            let hecho = await cartManager.updateProduct(cid,pid);
             if(hecho){
                 response.setHeader('Content-Type','application/json');
                 response.status(200).json({status:"succes", message:"Producto Agregado Satisfactoriamente"});
