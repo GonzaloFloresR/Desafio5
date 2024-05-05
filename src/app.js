@@ -40,13 +40,13 @@ let usuarios = [];
 let mensajes = [];
 
 io.on("connection", socket => {
-    console.log(`Se conecto un cliente con el ID ${socket.id}`);
+    //console.log(`Se conecto un cliente con el ID ${socket.id}`);
     
     socket.on("id", async(nombre) => {
         usuarios.push({id:socket.id, nombre});
         try {mensajes = await mensajesModelo.find().lean();}
         catch(error){`Error desde el servidor recuperando mensajes ${error}`}
-        console.log(mensajes);
+        
         socket.emit("mensajesPrevios", mensajes);
         socket.broadcast.emit("nuevoUsuario", nombre ); //Le envio a todos menos al que se conecto
     });

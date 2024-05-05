@@ -3,6 +3,7 @@ const router = Router();
 const path = require("path");
 const rutaProductos = path.join(__dirname,`../data/productos.json`);
 const productManager = require("../dao/ProductManagerMONGO.js");
+const { isValidObjectId } = require("mongoose");
 const ProductManager = new productManager(rutaProductos);
 
 router.get("/chat", (req, res) =>{
@@ -25,7 +26,7 @@ router.get("/home", async(req, res) => {
         } catch(error){ 
             console.log(error);
             res.setHeader('Content-Type','application/json');
-            res.status(500).json({error:`Error inesperado en el servidor`});
+            return res.status(500).json({error:`Error inesperado en el servidor`});
         }
     if(!id){
         datos = {   
@@ -35,26 +36,32 @@ router.get("/home", async(req, res) => {
             author:"Gonzalo Flores"
         };
         res.setHeader("Content-Type","text/html");
-        res.status(200).render("home",{productos, datos});
+        return res.status(200).render("home",{productos, datos});
     } 
     else {
-        datos = {   
+        if(!isValidObjectId(id)){
+            res.setHeader('Content-Type','application/json');
+            return res.status(400).json({error:"Ingrese un ID Valido para MongoDB"});
+        } else {
+            datos = {   
             title:"Página de Producto seleccionado",
             description:"Producto seleccionado por el ID",
             keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
             author:"Gonzalo Flores"
-        };
-        let producto;
-        try {
+            };
+            let producto;
+            try {
                 producto = await ProductManager.getProductBy({_id:id});
             } 
-        catch (error){
+            catch (error){
                 console.log(error);
                 res.setHeader('Content-Type','application/json');
                 res.status(500).json({error:`Error inesperado en el servidor`});
             }
-        res.setHeader("Content-Type","text/html");
-        res.status(200).render("home",{producto, datos, id});
+            res.setHeader("Content-Type","text/html");
+            return res.status(200).render("home",{producto, datos, id});
+        }
+        
     }
 });
 

@@ -2,6 +2,7 @@
   "name": "require_exports",
   "version": "1.0.0",
   "description": "",
+  "engines":{"node":"16.x"},
   "main": "./src/app.js",
   "scripts": {
     "start": "node ./src/app.js",
