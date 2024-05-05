@@ -1,10 +1,8 @@
 const Router = require("express").Router;
 const router = Router();
-const path = require("path");
-const rutaProductos = path.join(__dirname,`../data/productos.json`);
 const productManager = require("../dao/ProductManagerMONGO.js");
 const { isValidObjectId } = require("mongoose");
-const ProductManager = new productManager(rutaProductos);
+const ProductManager = new productManager();
 
 router.get("/chat", (req, res) =>{
     datos = {   title:"Bienvenido a mi Chat - Hecho con WebSocket 2024 GFR",
@@ -15,7 +13,7 @@ router.get("/chat", (req, res) =>{
                     author:"Gonzalo Flores"
                 }
     res.setHeader("Content-Type","text/html");
-    res.status(200).render("chat",{datos});
+    return res.status(200).render("chat",{datos});
 });
 
 router.get("/home", async(req, res) => {
@@ -56,7 +54,7 @@ router.get("/home", async(req, res) => {
             catch (error){
                 console.log(error);
                 res.setHeader('Content-Type','application/json');
-                res.status(500).json({error:`Error inesperado en el servidor`});
+                return res.status(500).json({error:`Error inesperado en el servidor`});
             }
             res.setHeader("Content-Type","text/html");
             return res.status(200).render("home",{producto, datos, id});
@@ -76,11 +74,11 @@ router.get("/realtimeproducts", async(req, res) => {
     try { 
         productos = await ProductManager.getProducts();
         res.setHeader("Content-Type","text/html");
-        res.status(200).render("realTimeProducts",{productos, datos});
+        return res.status(200).render("realTimeProducts",{productos, datos});
     } catch(error){ 
         console.log(error);
         res.setHeader('Content-Type','application/json');
-        res.status(500).json({error:`Error inesperado en el servidor`});
+        return res.status(500).json({error:`Error inesperado en el servidor`});
     }
 });
 

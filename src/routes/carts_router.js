@@ -1,14 +1,11 @@
 const Router = require("express");
 const router = Router();
-const path = require("path");
 const CartsManager = require("../dao/CartsManager.js");
-const ProductManager = require("../dao/ProductManagerMONGO.js");
 const {isValidObjectId} = require("mongoose");
 
 
 const entorno = async() => { 
     const cartManager = new CartsManager();
-    const productManager = new ProductManager();
 
     router.get("/", async (request, response) => {
         try {
