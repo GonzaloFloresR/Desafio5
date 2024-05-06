@@ -1,4 +1,3 @@
-const { ObjectId } = require("mongodb");
 let mongoose = require("mongoose");
 
 const cartsCollection = "carts";

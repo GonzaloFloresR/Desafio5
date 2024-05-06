@@ -1,9 +1,9 @@
 Swal.fire({
     title: "Identifiquese",
     input: "text",
-    text: "Ingrese su nickname",
-    inputValidator: (value)=> {
-        return !value && "Debe ingresar un nombre...!!!"
+    text: "Ingrese su Correo Electrónico",
+    inputValidator: (value) => {
+        return !value && "Debe ingresar un Email...!!!"
     },
     allowOutsideClick:false
 }).then(datos => {

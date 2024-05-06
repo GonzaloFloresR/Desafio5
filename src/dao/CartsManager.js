@@ -2,9 +2,9 @@ const cartsModelo = require("../dao/models/CartModel.js");
 
 class CartsManager {
 
-    async getCarritos(limit){
+    async getCarritos(limit=10){
         try {
-            return await cartsModelo.find().limit(limit).lean();
+            return await cartsModelo.find().populate("products.productId").limit(limit).lean();
         }
         catch(error){
             console.log(error,"Error desde getCarritos");
@@ -22,7 +22,7 @@ class CartsManager {
 
     async getCarritotById(cid){
         try {
-            return await cartsModelo.findById(cid); //{_id:cid}
+            return await cartsModelo.findById(cid).populate("products.productId"); //{_id:cid}
         } 
         catch(error){console.log(error, "Error en el getCarritoById")}
     }
