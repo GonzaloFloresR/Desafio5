@@ -8,16 +8,15 @@ const entorno = async () => {
     const productManager = new ProductManager();
     
     router.get("/", async(request, response) => {
-        let productos;
         let {limit} = request.query;
         if(limit){
             limit = Number(limit);
             if(!isNaN(limit)){
                 if(limit > 0){
                     try {
-                        productos = await productManager.getProducts(limit);
+                        let {docs:productos} = await productManager.getProducts(limit);
                         response.setHeader('Content-Type','application/json');
-                        response.status(200).json(productos);
+                        return response.status(200).json(productos);
                     } catch(error) {
                         console.log(error);
                         response.setHeader('Content-Type','application/json');
@@ -29,62 +28,41 @@ const entorno = async () => {
                 } //Cerrando if limit > 0
             } else {
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:"Los limites deben ser datos numericos"});
+                return response.status(400).json({error:"Los limites deben ser datos numericos"});
             }
         } else { // Si no existe limit
             try { 
-                productos = await productManager.getProducts();
+                let {docs:productos} = await productManager.getProducts();
                 response.setHeader('Content-Type','application/json');
-                response.status(200).json(productos);
+                return response.status(200).json(productos);
             } catch(error){ 
                 console.log(error);
                 response.setHeader('Content-Type','application/json');
-                response.status(500).json({
+                return response.status(500).json({
                     error:"Error inesperado en el servidor - intente más tarde",
                     detalle:`${error.message}`});
-                return;
+                
             }
         }
     });
 
     router.get("/:pid", async(request, response) => {
-        let producto;
         let {pid} = request.params;
-        if(pid){
-            if(!isValidObjectId(pid)){
-                response.setHeader('Content-Type','application/json');
-                return response.status(400).json({erro:'Ingrese un ID valido de MongoDB'})
-            } else {
-                try {
-                    producto = await productManager.getProductBy({_id:pid});
-                }
-                catch(error){
-                    console.log(error);
-                    response.setHeader('Content-Type','application/json');
-                    return response.status(500).json(
-                        {
-                            error:`Error inesperado en el servidor`,
-                            detalle:`${error.message}`
-                        }
-                    );
-                }
+        if(!isValidObjectId(pid)){
+            response.setHeader('Content-Type','application/json');
+            return response.status(400).json({erro:'Ingrese un ID valido de MongoDB'})
+        } else {
+            try {
+                let producto = await productManager.getProductBy({_id:pid});
                 if(producto){
                     response.setHeader('Content-Type','application/json');
                     return response.status(200).json(producto);
                 } else {
                     response.setHeader('Content-Type','application/json');
-                    return response.status(400).json({error:`No existe producto con ID ${pid}`}
-                    );
+                    return response.status(400).json({error:`No existe producto con ID ${pid}`});
                 }
             }
-            
-        } else { //Si no existe params.pid
-            try { 
-                let productos = await productManager.getProducts();
-                response.setHeader('Content-Type','application/json');
-                return response.status(200).json(productos);
-    
-            } catch(error){ 
+            catch(error){
                 console.log(error);
                 response.setHeader('Content-Type','application/json');
                 return response.status(500).json(
@@ -188,13 +166,14 @@ const entorno = async () => {
         } //cerrando "else" donde confirmamos recibir todos los datos del productos
     });
 
+    router.put("/", (req, res) => {
+        res.setHeader('Content-Type','application/json');
+        return res.status(400).json({error:`Debe ingresar el ID del producto a modificar`});
+    });
+
     router.put("/:pid", async(request, response) => {
         //Debería verificar que al menos modifique una propiedad.
         let {pid} = request.params;
-        if(!pid){
-            response.setHeader('Content-Type','application/json');
-            return response.status(400).json({error:`Debe ingresar el ID del producto a modificar`});
-        } else {
             let producto;
             if(!isValidObjectId(pid)){
                 response.setHeader('Content-Type','application/json');
@@ -213,7 +192,6 @@ const entorno = async () => {
                         }
                     );
                 }
-                
                 if(producto){
                     //modifico el producto
                     let modificado;
@@ -267,18 +245,20 @@ const entorno = async () => {
                     return response.status(400).json({error:`No existe un producto con el ID ${pid}`});
                 }
             }
-        }
+        
+    });
+
+    router.delete("/", async(request, response) => {
+        response.setHeader('Content-Type','application/json');
+        return response.status(400).json({error:`Debe ingresar el ID del producto a eliminar`});
     });
 
     router.delete("/:pid", async(request, response) => {
         let pid = request.params.pid;
-        if(!pid){
-            response.setHeader('Content-Type','application/json');
-            response.status(400).json({error:`Debe ingresar el ID del producto a eliminar`});
-        } else {
+
             if(!isValidObjectId(pid)){
                 response.setHeader('Content-Type','application/json');
-                response.status(400).json({error:"Ingrese un ID numérico "});
+                response.status(400).json({error:"Ingrese un ID Mongo"});
             } else {
                 let producto;
                 try {
@@ -320,7 +300,6 @@ const entorno = async () => {
                     return response.status(400).json({error:`No existe producto con el ID ${pid}`});
                 }
             }
-        }
     });
 }//Cerrando entorno()
 

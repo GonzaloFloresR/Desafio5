@@ -4,13 +4,20 @@ class CartsManager {
 
     async getCarritos(limit=10){
         try {
-            return await cartsModelo.find().populate("products.productId").limit(limit).lean();
+            //El populate se puede agregar aqui en la consulta o como middleware pre en el esquema
+            //return await cartsModelo.find().populate("products.productId").limit(limit).lean();
+            return await cartsModelo.find().limit(limit).lean();
         }
         catch(error){
             console.log(error,"Error desde getCarritos");
         }
     }
 
+    async getCarritoBy(filter){
+        return await cartsModelo.find(filter).lean();
+    }
+
+    //{products:[{productId:"",quantity:1},{products:[{productId:"",quantity:1}]}
     async crearCarrito(NuevoCarrito){
         try {
             return await cartsModelo.create(NuevoCarrito);
@@ -20,7 +27,7 @@ class CartsManager {
         }
     }
 
-    async getCarritotById(cid){
+    async getCarritoById(cid){
         try {
             return await cartsModelo.findById(cid).populate("products.productId"); //{_id:cid}
         } 
@@ -29,39 +36,17 @@ class CartsManager {
 
     async updateCart(cid, update){
         try {
-            return await cartsModelo.findByIdAndUpdate(cid, update,{runValidators:true, returnDocument:"after"});
+            //Ejemplo incrementar 1 {"$inc":{"stock": 1}}
+            return await cartsModelo.findByIdAndUpdate({"_id":cid},update,{runValidators:true, new:true, upsert:true});
         }
         catch(error){
             console.log(error, "Error desde updateCart");
         }
     }
 
-    async updateProduct(cid, update){
-
-        const carrito = cartsModelo.findById({_id:cid});
-        if(carrito){
-                let producto = carrito.products.find((prod) => prod.productId == pid);
-                if(producto){
-                    producto.quantity += 1;
-                } else {
-                    carrito.products.push({productId:pid, quantity:1 });
-                }
-            try {
-                await guardarArchivo(); 
-                return true ; // `Archivo Actualizado`
-            }
-            catch(error){
-                console.log(error.message);
-            }
-            
-        } else {
-            return false; // `El carrito con el id: ${cid} no existe`
-        }
-    }
-
-    async deleteCarrito(pid){
+    async deleteCarrito(cid){
         try{
-            return await cartsModelo.deleteOne(pid);
+            return await cartsModelo.findByIdAndDelete(cid);
         }
         catch(error){
             console.log(error,"Error desde deleteProduct")

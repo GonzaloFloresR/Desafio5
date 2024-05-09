@@ -18,8 +18,10 @@ const cartsEsquema = new mongoose.Schema(
         timestamps:true,
         strict:true
     }
-    
 );
+
+//Se puede agregar el populate aqui o en CartManager al consultar con find()
+cartsEsquema.pre("find", function(){this.populate({path:"products.productId"})});
 
 const cartsModelo = mongoose.model(
     cartsCollection,

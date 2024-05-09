@@ -24,7 +24,6 @@ app.use(express.static(__dirname+'/public'));
 
 //Estoy agregando un middleware literal en flecha y enviando io al products_routers
 app.use("/api/products/", (req, res, next) => {
-    
         req.io = io;
         next();
     },

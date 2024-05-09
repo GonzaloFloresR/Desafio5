@@ -2,9 +2,10 @@ const productoModelo = require("../dao/models/ProductModel");
 
 class ProductManagerMONGO{
 
-    async getProducts(limit){
+    async getProducts(limit=10,page=1){
         try {
-            return await productoModelo.find().limit(limit).lean();
+            //return await productoModelo.find().limit(limit).lean();
+            return await productoModelo.paginate({},{limit, page, lean:true});
         }
         catch(error){
             console.log(error,"Error desde getProducts");
@@ -31,7 +32,8 @@ class ProductManagerMONGO{
 
     async updateProduct(id, Update){
         try {
-            return await productoModelo.findByIdAndUpdate(id, Update,{runValidators:true, returnDocument:"after"});
+            //Ejemplo incrementar 1 {"$inc":{"stock": 1}}
+            return await productoModelo.findByIdAndUpdate({"_id":id},Update,{runValidators:true, returnDocument:"after"});
         }
         catch(error){
             console.log(error, "Error desde updateProduct");

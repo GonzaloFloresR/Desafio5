@@ -1,4 +1,4 @@
-<h1>Real Time Productos</h1>
+<h1>Productos</h1>
 
 <div id="container">
     <div id="productos">
@@ -11,12 +11,15 @@
                     <li class="codigo">Código: {{code}} </li>
                     <li class="codigo">Id: {{_id}}</li>
                     <li>Stock Actual {{stock}} </li>
-                    <li><button class="comprar" >Agregar al carrito</button></li>
+                    <li><button class="comprar" onclick="comprar(`{{_id}}`)">Agregar al carrito</button></li>
                 </ul>
             {{/each}}
     </div>
 </div>
+ {{#each carrito}}
+    <input type="text" value="{{_id}}" id="carrito" hidden />
+{{/each}}
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/js/script.js"></script>
+        <script src="/js/productos.js"></script>
+{{!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ --}}

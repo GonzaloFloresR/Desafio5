@@ -1,8 +1,11 @@
 const Router = require("express").Router;
 const router = Router();
+const CartsManager = require("../dao/CartsManager.js"); //Agregado en After Class
 const productManager = require("../dao/ProductManagerMONGO.js");
 const { isValidObjectId } = require("mongoose");
 const ProductManager = new productManager();
+
+const cartsManager = new CartsManager(); //Agregado en After Class
 
 router.get("/chat", (req, res) =>{
     datos = {   title:"Bienvenido a mi Chat - Hecho con WebSocket 2024 GFR",
@@ -18,23 +21,22 @@ router.get("/chat", (req, res) =>{
 
 router.get("/home", async(req, res) => {
     let {id} = req.query;
-    let productos;
+    if(!id){
         try { 
-            productos = await ProductManager.getProducts();
+            let {docs:productos} = await ProductManager.getProducts();
+            datos = {   
+                title:"Página de Productos",
+                description:"Lista de productos",
+                keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
+                author:"Gonzalo Flores"
+            };
+            res.setHeader("Content-Type","text/html");
+            return res.status(200).render("home",{productos, datos});
         } catch(error){ 
             console.log(error);
             res.setHeader('Content-Type','application/json');
             return res.status(500).json({error:`Error inesperado en el servidor`});
         }
-    if(!id){
-        datos = {   
-            title:"Página de Productos",
-            description:"Lista de productos",
-            keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
-            author:"Gonzalo Flores"
-        };
-        res.setHeader("Content-Type","text/html");
-        return res.status(200).render("home",{productos, datos});
     } 
     else {
         if(!isValidObjectId(id)){
@@ -47,19 +49,17 @@ router.get("/home", async(req, res) => {
             keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
             author:"Gonzalo Flores"
             };
-            let producto;
             try {
                 producto = await ProductManager.getProductBy({_id:id});
+                res.setHeader("Content-Type","text/html");
+            return res.status(200).render("home",{producto, datos, id});
             } 
             catch (error){
                 console.log(error);
                 res.setHeader('Content-Type','application/json');
                 return res.status(500).json({error:`Error inesperado en el servidor`});
             }
-            res.setHeader("Content-Type","text/html");
-            return res.status(200).render("home",{producto, datos, id});
         }
-        
     }
 });
 
@@ -70,13 +70,36 @@ router.get("/realtimeproducts", async(req, res) => {
                 keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
                 author:"Gonzalo Flores"
     }
-    let productos;
+    
     try { 
-        productos = await ProductManager.getProducts();
+        //let productos = await ProductManager.getProducts();
+        let {docs:productos} = await ProductManager.getProducts(20,1);
         res.setHeader("Content-Type","text/html");
         return res.status(200).render("realTimeProducts",{productos, datos});
     } catch(error){ 
         console.log(error);
+        res.setHeader('Content-Type','application/json');
+        return res.status(500).json({error:`Error inesperado en el servidor`});
+    }
+});
+
+router.get("/products", async(req, res) => {
+
+    let carrito = await cartsManager.getCarritos(1); //recibo array con un producto
+    
+    datos = {   title:"Bienvenido a mi primera plantilla Handlebars 2024 JS",
+                nombre:"Gonzalo",
+                description:"Utilización de plantillas Handlebars en el curso de bankEnd de CoderHouse",
+                keywords:"Plantilla, handlebars, JS, Coderhouse, Cursos BackEnd",
+                author:"Gonzalo Flores"
+    }
+    try { 
+        let {docs:productos} = await ProductManager.getProducts(20,1);
+
+        res.setHeader("Content-Type","text/html");
+        return res.status(200).render("products",{productos, datos, carrito});
+    } catch(error){ 
+        console.log(error.message);
         res.setHeader('Content-Type','application/json');
         return res.status(500).json({error:`Error inesperado en el servidor`});
     }
